@@ -19,6 +19,49 @@ const statusOptions = [
     'Stunned', 'Blinded', 'Invisible', 'Paralyzed', 'Restrained'
 ];
 
+
+// ... (all of your existing JS code from the prompt)
+
+// ========== GLOBAL STATE ==========
+// ...
+
+// ========== NEW: DASHBOARD PANEL LOGIC ==========
+const appContainer = document.getElementById('app-container');
+const seeDashboardsBtn = document.getElementById('seeDashboardsBtn');
+const closeDashboardBtn = document.getElementById('closeDashboardBtn');
+
+function toggleDashboardPanel(show) {
+  if (show) {
+    appContainer.classList.add('dashboard-visible');
+    // You could also do more here, like fetch dashboard data
+  } else {
+    appContainer.classList.remove('dashboard-visible');
+  }
+}
+
+seeDashboardsBtn.addEventListener('click', () => toggleDashboardPanel(true));
+closeDashboardBtn.addEventListener('click', () => toggleDashboardPanel(false));
+
+
+// Example of how to switch between dashboard panel and a sheet (for future use)
+// This logic would be expanded to handle dynamic loading of sheets.
+document.querySelectorAll('.dashboard-preview-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.getElementById('dashboard-panel-view').classList.remove('active');
+    document.getElementById('dashboard-sheet-view').classList.add('active');
+  });
+});
+
+document.querySelector('.sheet-header .back-button').addEventListener('click', () => {
+    document.getElementById('dashboard-sheet-view').classList.remove('active');
+    document.getElementById('dashboard-panel-view').classList.add('active');
+});
+
+// ========== THEME TOGGLE ==========
+// ... (rest of your existing JS is unchanged)
+
+
+
 // ========== THEME TOGGLE ==========
 const themeToggle = document.getElementById('themeToggle');
 
