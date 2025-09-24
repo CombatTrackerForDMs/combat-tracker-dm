@@ -1,0 +1,437 @@
+/* css/combat-table.css */
+
+/* The scroll wrapper MUST own the overflow and be allowed to shrink */
+.table-scroll-container {
+  flex: 0 0 auto;
+  min-width: 0;            /* critical: allow shrinking in a grid/flex parent */
+  height: 100%;
+  overflow-x: auto;         /* horizontal scroll when narrow */
+  overflow-y: auto;
+  display: block;           /* avoid centering quirks from flex */
+  margin-top: 8px;
+}
+
+/* The grid/table should not shrink below a sane width */
+#tracker-table {
+  box-sizing: border-box;
+  width: auto;              /* size to content; wrapper will scroll */
+  min-width: 1150px;        /* adjust to taste; ensures scroll kicks in */
+  --cols:
+    minmax(40px, 0.4fr)     /* select */
+    minmax(60px, 0.7fr)     /* image */
+    minmax(56px, 0.7fr)     /* init */
+    minmax(120px, 1.5fr)    /* name */
+    minmax(60px, 0.7fr)     /* AC */
+    minmax(120px, 1.1fr)    /* HP/MAX */
+    minmax(70px, 0.8fr)     /* Temp HP */
+    minmax(160px, 2fr)      /* Status */
+    minmax(84px, 0.4fr)     /* Role */
+    minmax(150px, 1.2fr)    /* Actions */
+    minmax(60px, 0.5fr);    /* Dashboard link */
+}
+
+/* Rows & header share the same grid */
+#tracker-table > .tracker-table-header,
+#combatant-list-body > .tracker-table-row {
+  display: grid;
+  grid-template-columns: var(--cols);
+  gap: 8px;
+  padding: 6px 8px;
+  align-items: center;
+}
+
+/* Sticky header */
+.tracker-table-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #f6e4c1;
+  border-bottom: 2px solid #d0bfa2;
+  color: #5c5c5c;
+  font: 700 0.8rem/1.2 sans-serif;
+  text-transform: uppercase;
+}
+
+#combatant-list-body > .tracker-table-row {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color .2s ease;
+}
+
+/* Cell alignment */
+.cell{ display:flex; align-items:center; }
+.select-cell, .image-cell, .init-cell, .ac-cell, .hp-cell, .temp-hp-cell,
+.status-cell, .role-cell, .actions-cell, .dashboard-link-cell { justify-content:center; }
+.name-cell{ justify-content:flex-start; font-weight:700; }
+.image-cell img{ width:60px; height:60px; border-radius:50%; object-fit:cover; }
+.select-cell input{ transform:scale(1.2); cursor:pointer; }
+
+
+
+/* Buttons in rows */
+.actions-cell .btn-group{ display:flex; gap:4px; }
+.status-cell button, .actions-cell .btn-group button, .dashboard-link-cell button{
+  background:transparent; border:1px solid #bdbdbd; border-radius:4px;
+  cursor:pointer; padding:4px 8px; font-size:.8rem;
+}
+
+/* Selection states */
+#combatant-list-body > .tracker-table-row.selected{ background:#e3f2fd !important; }
+#tracker-table.selection-locked .select-cell{ visibility:hidden; }
+
+
+/* Readability sizing */
+#combatant-list-body > .tracker-table-row,
+.group-row{ font-size:1.1rem; }
+#combatant-list-body > .tracker-table-row .cell,
+.group-row .cell{ font-size:inherit; }
+
+/* ===== Group palette ===== */
+:root{
+  --group-folder-tab:#d8c38b;
+  --group-folder-body:#e6d3a5;
+  --group-folder-stroke:#c3b07e;
+  --group-folder-gloss:rgba(255,255,255,.35);
+  --group-header-bg:#ffffff;
+  --group-header-br:#ffffff;
+  --group-member-bg:#ddf3da;
+  --group-member-bg-hover:#eaf0e6;
+}
+.group-folder-img{ width:42px; height:42px; object-fit:contain; }
+
+/* Group header row uses SAME grid */
+.group-row{
+  display:grid;
+  grid-template-columns: var(--cols);
+  gap:8px;
+  padding:0px 8px;
+  background:var(--group-header-bg);
+  border-top:2px solid var(--group-header-br);
+  border-bottom:2px solid var(--group-header-br);
+  font-weight:700;
+  cursor:pointer;
+  transition: filter .15s ease;
+}
+.group-row .cell{ display:flex; align-items:center; }
+.group-row .select-cell,.group-row .image-cell,.group-row .init-cell,.group-row .ac-cell,
+.group-row .hp-cell,.group-row .temp-hp-cell,.group-row .status-cell,.group-row .role-cell,
+.group-row .actions-cell,.group-row .dashboard-link-cell{ justify-content:center; }
+.group-row .name-cell{ justify-content:flex-start; }
+
+
+/* Indentation for members */
+
+.tracker-table-row.in-group .init-cell{ display:none; }
+.tracker-table-row.in-group .image-cell{
+  grid-column: 2 / span 2;
+  justify-content:flex-start;
+  padding-left:90px;
+}
+.tracker-table-row.in-group .name-cell{ padding-left:10px; }
+
+/* Hint banner */
+.hint-banner{
+  display:none; padding:8px 12px; background:#fff8d0; border-top:1px solid #e2d48a; border-bottom:1px solid #e2d48a;
+  font-weight:600; color:#6b6000;
+}
+.hint-banner:not(.hidden){ display:block; }
+
+/* Mini confirm */
+.confirm-mini{ display:none; align-items:center; gap:.75rem; padding:.5rem .75rem;
+  background:#fff8d0; border-top:1px solid #e2d48a; border-bottom:1px solid #e2d48a; font-weight:600; color:#534a00; }
+.confirm-mini:not(.hidden){ display:flex; }
+.confirm-mini .btn{ padding:.3rem .6rem; font-size:.9rem; }
+.confirm-mini .btn.btn-secondary{ background:#e0e0e0; color:#333; border-color:#c7c7c7; }
+
+/* Bulk actions bar */
+.bulk-actions-bar{
+  display:none; position:sticky; top:0; z-index:9; align-items:center; gap:.75rem;
+  min-height:44px; padding:6px 10px; line-height:1.2; white-space:nowrap;
+}
+.bulk-actions-bar.visible{ display:grid; }
+.bulk-actions-bar *{ margin:0; }
+#selectionCounter{ font-weight:700; }
+.bulk-actions-actions{ display:flex; gap:.5rem; align-items:center; flex-wrap:nowrap; overflow-x:auto; max-width:100%; }
+.bulk-actions-actions button{ flex:0 0 auto; white-space:nowrap; }
+.bulk-actions-actions button:hover{ background:#6ca05b; }
+@media (max-width:800px){
+  .bulk-actions-bar{ grid-template-columns:1fr; row-gap:.5rem; }
+  .bulk-actions-actions{ grid-auto-flow:row; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); justify-content:stretch; }
+}
+
+/* INIT sorting buttons */
+.init-cell button{ background:none; border:none; font-size:.8rem; cursor:pointer; padding:0 2px; line-height:1; }
+.init-cell button:hover{ color:#333; }
+
+/* Inline editor */
+.editable-text, .editable-int{ cursor:text; border-bottom:1px dashed transparent; }
+.editable-text:hover, .editable-int:hover{ border-bottom-color: rgba(0,0,0,.2); }
+.inline-editor{
+  width:100%; max-width:140px; box-sizing:border-box; font:inherit; padding:2px 4px;
+  border:1px solid #bdbdbd; border-radius:3px; background:#fffef7; outline:none;
+}
+.inline-editor:focus{ border-color:#7fb069; box-shadow:0 0 0 2px rgba(127,176,105,.25); }
+.name-cell .inline-editor{ max-width:220px; }
+
+/* Default background for top-level combatants */
+#combatant-list-body > .tracker-table-row:not(.in-group) {
+  background: #fff;
+}
+#combatant-list-body > .tracker-table-row:not(.in-group):hover {
+  background: #f1f8ff;
+}
+
+/* For group members, the background is set via an inline style in JS.
+   We just need a hover effect that darkens the existing color. */
+#combatant-list-body > .tracker-table-row.in-group:hover {
+  filter: brightness(0.95);
+}
+
+/* Current turn highlight: an outline that works on ANY row */
+#tracker-table .tracker-table-row.current-turn {
+  position: relative;
+  outline: 3px solid #4CAF50; /* A slightly thicker, more visible outline */
+  outline-offset: -2px;
+  z-index: 2; /* Ensure the outline is on top */
+}
+
+/* Simple condition chips */
+.condition-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .15rem .4rem;
+  border: 1px solid #bbb;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #222;
+  font-size: .8rem;
+  margin: 0 .25rem .25rem 0;
+  white-space: nowrap;
+}
+.condition-chip .x {
+  cursor: pointer;
+  opacity: .6;
+  font-weight: 700;
+}
+.condition-chip.expired {
+  opacity: .35;
+  text-decoration: line-through;
+}
+
+
+
+/* Make the combat table area 95% of the page width */
+.table-scroll-container {
+  width: 95%;
+  margin: 0 auto;   /* center it */
+}
+
+/* Keep the grid wide enough to scroll when needed */
+#tracker-table {
+  width: auto;      /* or omit */
+  min-width: 1150px;
+}
+
+
+
+
+/* Status cell: base layout */
+#tracker-table .status-cell {
+  display: flex !important;
+  align-items: center;
+  gap: .25rem;
+  /* override any earlier center alignment */
+  justify-content: center;
+}
+
+/* Chips container */
+#tracker-table .status-cell .cond-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+}
+
+/* ---------- One-line mode (default) ---------- */
+/* Chips take natural width; button sits right after */
+#tracker-table .status-cell:not(.wrapped) .cond-list {
+  flex: 0 0 auto;
+  min-width: max-content;  /* prevents the "0 width" squish you saw */
+}
+#tracker-table .status-cell:not(.wrapped) .btn-add-status {
+  margin-left: .25rem;
+  /* no flex:0 0 auto here; let it size naturally */
+  white-space: nowrap;
+}
+
+/* ---------- Wrapped mode (chips onto 2nd line) ---------- */
+/* Chips can shrink; button moves to far right */
+#tracker-table .status-cell.wrapped .cond-list {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+#tracker-table .status-cell.wrapped .btn-add-status {
+  margin-left: auto;       /* pushes to right edge */
+  align-self: flex-start;  /* top-align next to first chip row */
+  white-space: nowrap;
+}
+
+/* optional: remove extra margins since we use gap */
+#tracker-table .status-cell .condition-chip { margin: 0; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ========== White pill look for text & buttons ========== */
+:root{
+  --pill-bg:#fff;
+  --pill-br:#e5e5e5;
+  --pill-radius:10px;
+  --pill-pad-y:6px;
+  --pill-pad-x:10px;
+}
+
+/* Name pill (both read and inline edit states) */
+.name-cell .editable-text,
+.name-cell .inline-editor{
+  background:var(--pill-bg);
+  border:1px solid var(--pill-br);
+  border-radius:var(--pill-radius);
+  padding:var(--pill-pad-y) var(--pill-pad-x);
+  box-shadow:0 1px 0 rgba(0,0,0,.02);
+}
+
+/* =========================
+   Scope pill styles to combatant rows only
+   ========================= */
+#tracker-table .tracker-table-row .ac-cell,
+#tracker-table .tracker-table-row .hp-cell,
+#tracker-table .tracker-table-row .temp-hp-cell,
+#tracker-table .tracker-table-row .role-cell{
+  background:#fff;
+  border:1px solid #e5e5e5;
+  border-radius:10px;
+  padding:6px 10px;
+  color:#000;
+  justify-content:flex-start;
+}
+
+/* Buttons (only combatant rows): white */
+#tracker-table .tracker-table-row .status-cell button,
+#tracker-table .tracker-table-row .actions-cell .btn-group button,
+#tracker-table .tracker-table-row .dashboard-link-cell button{
+  background:#fff !important;
+  color:#000 !important;
+  border:1px solid #e5e5e5 !important;
+  border-radius:10px !important;
+  padding:6px 10px !important;
+  line-height:1.1;
+}
+
+/* =========================
+   Group header row overrides
+   ========================= */
+/* Flatten everything by default */
+.group-row .ac-cell,
+.group-row .hp-cell,
+.group-row .temp-hp-cell,
+.group-row .role-cell,
+.group-row .status-cell{
+  background:transparent !important;
+  border:0 !important;
+  padding:0 !important;
+  box-shadow:none !important;
+}
+
+/* Don't zero-out the color swatch in group rows */
+.group-row .actions-cell .btn-group button:not(.row-del):not(.group-color-swatch){
+  background:transparent !important;
+  color:inherit !important;
+  border:0 !important;
+  padding:0 !important;
+  box-shadow:none !important;
+}
+
+/* Make the swatch stand out with a white ring */
+.group-color-swatch{
+  padding:0 !important;
+  width:22px; height:22px;
+  border-radius:50% !important;
+  border:2px solid #fff !important;                 /* white ring */
+  box-shadow:0 0 0 1px rgba(0,0,0,.25) !important;   /* outer keyline */
+  display:inline-block;
+  cursor:pointer;
+}
+
+.group-color-swatch:focus{
+  outline:none;
+  box-shadow:0 0 0 2px #fff, 0 0 0 4px rgba(0,0,0,.35) !important;
+}
+
+
+
+/* Group: Init & Name should stay as white pills */
+.group-row .init-cell span,
+.group-row .name-cell .editable-text,
+.group-row .name-cell .inline-editor{
+  background:#fff !important;
+  color:#000 !important;
+  border:1px solid #e5e5e5 !important;
+  border-radius:10px !important;
+  padding:6px 10px !important;
+}
+
+/* Group: Delete button stays white pill */
+.group-row .row-del{
+  background:#fff !important;
+  color:#000 !important;
+  border:1px solid #e5e5e5 !important;
+  border-radius:10px !important;
+  padding:6px 10px !important;
+  line-height:1.1;
+}
+
+
+
+/* Init/AC/HP/Temp styling */
+.init-cell span{ font-weight:700; color:#2a4d8f; background:#e3ecff; padding:7px 12px; border-radius:4px; }
+.ac-shield{ font-size:1.3em; margin-right:4px; vertical-align:middle; }
+.hp-cell{ display:flex; align-items:center; gap:.4rem; font-weight:bold; }
+.hp-heart{ color:#e53935; font-size:1.3em; line-height:1; vertical-align:middle; display:inline-block; }
+.temp-hp-cell{ display:flex; align-items:center; gap:.3rem; font-weight:bold; color:#4a7c59; }
+.temp-icon{ font-size:1.2em; color:#4caf50; vertical-align:middle; display:inline-block; }
+
+.hp-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  margin-right: .4rem;
+  vertical-align: middle;
+  display: inline-block;
+  filter: drop-shadow(0 0 1px rgba(0,0,0,.25));
+}
+
+.hp-emoji {
+  font-size: 1.1em;
+  line-height: 1;
+  margin-right: .4rem;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+
+/* inject once at runtime, or drop into CSS */
+.slots-inline .slot-row{ gap:.5rem; }
+.slots-inline .slot-pips{ display:flex; flex-wrap:wrap; gap:4px; align-items:center; margin-left:.5rem; }
+.slots-inline .slot-pip{ width:14px; height:14px; border-radius:50%; box-sizing:border-box; border:2px solid currentColor; opacity:.35; }
+.slots-inline .slot-pip.available{ background: currentColor; opacity:1; }
+.slots-inline .slot-pip.spent{ background: transparent; }

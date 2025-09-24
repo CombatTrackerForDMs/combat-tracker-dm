@@ -1,0 +1,244 @@
+/* css/tracker.css */
+
+/* keep layout from jumping when scrollbars appear */
+html { scrollbar-gutter: stable; }
+
+html, body { height: 100%; margin: 0; padding: 0; }
+
+#app-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- Panel placement (dashboard on right) --- */
+#left-tracker { order: 1; }
+#right-dashboard { order: 2; }
+
+/* --- Dashboard Panel Styles --- */
+#dashboard-header {
+  background-color: #444;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 0.5rem 1rem;
+}
+#dashboard-header h3 {
+  font-size: clamp(0.9rem, 1.5vw + 0.4rem, 1.5rem);
+  margin: 0;
+  color: white;
+}
+
+/* --- Left column as a grid that can shrink safely --- */
+#left-tracker {
+  flex-grow: 1;
+  width: 0;               /* allow shrink */
+  min-width: 0;           /* critical to allow inner overflow to show */
+  display: grid;
+  /* header / controls / banners ... then the table area fills the rest */
+  grid-template-rows: auto auto auto auto auto 1fr;
+}
+
+/* Right panel visuals */
+#right-dashboard {
+  width: 0;               /* collapsed by default */
+  flex-shrink: 0;
+  display: flex;
+  background-color: #2c2c2c;
+  border-left: 2px solid #00bfa6;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;     /* for resizer positioning */
+}
+
+/* When visible, width = clamp(15%, var(--right-pct, 45%), 85%) */
+#app-container.dashboard-visible { --right-pct: 45%; }   /* default 45% */
+/* Right panel when visible */
+#app-container.dashboard-visible #right-dashboard {
+  flex: 0 0 clamp(15%, var(--right-pct, 45%), 60%);
+  width: auto;
+  min-width: 0;
+}
+
+#app-container.dashboard-visible #left-tracker {
+  flex: 1 1 auto;
+  width: auto;
+}
+
+/* Let <main> children participate directly in the grid rows */
+main.tracker-wrapper { display: contents; }
+
+/* Resizer (optional) */
+#dash-resizer{
+  position:absolute; left:-4px; top:0; bottom:0; width:8px;
+  cursor: col-resize; background: transparent; z-index:5;
+}
+#dash-resizer:hover, #dash-resizer.resizing{
+  background: linear-gradient(to right, rgba(0,191,166,.15), rgba(0,191,166,.3), rgba(0,191,166,.15));
+}
+body.resizing-col { user-select: none; }
+
+/* --- Header styles --- */
+.tracker-header {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f6e4c1;
+  border-bottom: 2px solid #d0bfa2;
+  gap: 1rem;
+  height: 8vh;
+  min-height: 50px;
+  align-items: center;
+}
+.header-left-group {
+  display: flex; align-items: center; gap: .75rem;
+  min-width: 0; flex: 0 1 auto; height: 100%;
+}
+.tracker-header .back-btn {
+  background:#7fb069; color:#fff; border:0;
+  display:flex; align-items:center; padding:0 1rem; flex-shrink:0; height:100%;
+}
+.tracker-header h1 {
+  margin:0; padding-left:1rem;
+  font-size: clamp(1.2rem, 2vw + .5rem, 2.2rem);
+  font-family: "Georgia", serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.header-right-controls {
+  display:flex; align-items:center; gap:.75rem;
+  flex:1 1 auto; justify-content:flex-end; min-width:0; padding-right:1rem;
+}
+
+/* Buttons */
+.button-group { display:flex; flex-wrap:nowrap; gap:.5rem; }
+.button-group button {
+  background:#7fb069; color:#fff; border:1px solid #6ca05b; cursor:pointer;
+  padding:6px 12px; border-radius:4px; font-size:clamp(.4rem, 1vw + .2rem, 1rem);
+  white-space:nowrap; transition: background-color .2s ease;
+}
+.button-group button:hover { background:#6ca05b; }
+
+/* Controls row */
+.controls-row{
+  display:flex; align-items:center; justify-content:center; flex-wrap:nowrap;
+  gap:clamp(.25rem, .8vw, .5rem);
+  padding: clamp(.2rem, .7vw, .5rem) clamp(.4rem, .9vw, 1rem);
+  background:#f6e4c1; border-top:2px solid #d0bfa2; border-bottom:2px solid #d0bfa2;
+  overflow-x:auto; -webkit-overflow-scrolling:touch;
+}
+
+.header-right-controls, .controls-row { container-type: inline-size; }
+
+.btn{
+  display:inline-flex; align-items:center; gap:.4rem; white-space:nowrap;
+  font-size: clamp(.72rem, 1vw + .2rem, 1rem);
+  padding:.35rem .6rem; background:#7fb069; color:#fff; border:1px solid #6ca05b; border-radius:4px; cursor:pointer;
+}
+.btn:hover{ background:#6ca05b; }
+.btn > :first-child{ flex:0 0 auto; }
+.btn .label{ overflow:hidden; text-overflow:ellipsis; }
+
+@container (max-width:960px){ .header-right-controls .btn{ padding:.3rem .5rem; } }
+@container (max-width:830px){ .header-right-controls .btn .label{ display:none; } }
+@container (max-width:1100px){ .controls-row .btn{ padding:.28rem .48rem; } }
+@container (max-width:1100px){ .controls-row .btn .label{ display:none; } }
+
+#roundCounter, #currentTurnDisplay{
+  font-size: clamp(.7rem, .9vw + .2rem, 1rem);
+  padding:.3rem .5rem; text-align:center; font-weight:bold;
+  background:#e6d3b0; border-radius:5px; border:1px solid #d0bfa2; white-space:nowrap; flex-shrink:0;
+}
+
+
+/* Add to css/tracker.css (or a small new CSS file you already load) */
+#right-dashboard {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#dashboard-header {
+  flex: 0 0 auto;
+}
+
+#dash-iframe {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+}
+
+
+/* css */
+#drag-shield {
+  position: fixed; inset: 0;
+  cursor: col-resize;
+  background: transparent;
+  z-index: 9999;       /* above iframe */
+  display: none;
+}
+#drag-shield.active { display: block; }
+
+
+
+
+/* Compact, light-themed HP flyout */
+.hp-flyout {
+  position: fixed;
+  z-index: 9999;
+  background: #fafafa;
+  color: #222;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  max-width: 320px;   /* narrower */
+  font-size: 0.9rem;
+}
+.hp-flyout.hidden { display: none; }
+
+.hp-flyout-row {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  white-space: nowrap;
+}
+.hp-flyout-row label {
+  font-size: .85rem;
+  opacity: .85;
+}
+.hp-flyout-row input[type="number"] {
+  width: 4.5rem;   /* smaller fields */
+  padding: .2rem .35rem;
+  border: 1px solid #bbb;
+  background: #fff;
+  color: #222;
+  border-radius: 4px;
+  font-size: .85rem;
+}
+.hp-flyout-row .btn {
+  padding: .2rem .5rem;
+  font-size: .85rem;
+}
+
+.hp-flyout .hp-flyout-hint {
+  font-size: .75rem;
+  opacity: .7;
+  margin-top: .3rem;
+}
+
+/* optional small arrows */
+.hp-flyout-below::before,
+.hp-flyout-above::before {
+  content: "";
+  position: absolute;
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+.hp-flyout-below::before {
+  top: -6px;
+  border-bottom: 6px solid #ccc;
+}
+.hp-flyout-above::before {
+  bottom: -6px;
+  border-top: 6px solid #ccc;
+}
+

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DnD Sidekick</title>
+    <link rel="icon" type="image/png" href="images/icon.png">
+
+    <!-- CSS Links -->
+    <link rel="stylesheet" href="css/tracker.css">
+    <link rel="stylesheet" href="css/combat-table.css">
+    <!-- Keep other project-specific CSS if needed -->
+    <link rel="stylesheet" href="css/link-sheet.css">
+
+    <!-- JavaScript files (deferred to load after HTML) -->
+    <!-- These are kept as per your project structure -->
+    <script src="scripts/app.js" defer></script>
+    <script src="scripts/history-log.js" defer></script>
+    <!-- The two core scripts for the tracker functionality -->
+    <!-- MUST be before the other combat scripts -->
+    <script src="scripts/encounters-store.js"></script>
+    <script src="scripts/conditions_catalog.js" defer></script>
+
+    <!-- The split files -->
+    <script src="scripts/players.js" defer></script>
+    <script src="scripts/spells.js" defer></script>
+    <script src="scripts/combat-tracker.js" defer></script>
+
+    <script src="scripts/combat-persist.js" defer></script>
+    <script src="scripts/combat-share.js" defer></script>
+
+    <script src="scripts/group-selector.js" defer></script>
+    <script src="scripts/hp-popup.js" defer></script>
+    <!-- …other scripts… -->
+    <script src="scripts/link-sheet.js" defer></script>
+    <script src="scripts/dashboard.js" defer></script>    
+    <script src="scripts/encounter-dashboard.js" defer></script>
+</head>
+<body>
+    <!-- Main container for the two-panel layout -->
+    <div id="app-container">
+
+        <!-- RIGHT: Dashboards panel (Initially hidden) -->
+        <!-- RIGHT: Dashboards panel (resizable, opens on button) -->
+        <section id="right-dashboard">
+            <div id="dash-resizer" aria-label="Resize dashboards panel" title="Drag to resize"></div>
+
+            <div id="dashboard-header">
+                <h3>📁 Dashboards</h3>
+                <button id="closeDashboardBtn">✖</button>
+            </div>
+
+            <!-- New: the embedded dashboards frame -->
+            <iframe
+                id="dash-iframe"
+                title="Dashboards"
+                sandbox="allow-same-origin allow-scripts allow-forms allow-downloads"
+                referrerpolicy="no-referrer"
+                style="border:0; width:100%; height:100%; display:block;"
+            ></iframe>
+        </section>
+
+        <!-- LEFT: Main Tracker panel -->
+        <section id="left-tracker">
+
+            <header class="tracker-header">
+                <div class="header-left-group">
+                    <button id="encounterBackBtn" class="back-btn">⬅ Back</button>
+                    <h1>🧝‍♂️ D&D Combat Tracker</h1>
+                </div>
+                <div class="header-right-controls">
+                    <label class="theme-switch">
+                        <input type="checkbox" id="themeToggle" />
+                        <span class="slider"></span>
+                    </label>
+                    <div class="button-group">
+                        <button id="addCombatantBtn" class="btn">➕ <span class="label">Add Combatant</span></button>
+                        <button id="addGroupBtn" class="btn">➕ <span class="label">Add Group</span></button>
+                        <button id="startEncounterBtn" class="btn">▶ <span class="label">Reset Encounter</span></button>
+                    </div>
+                </div> 
+            </header>
+
+            <main class="tracker-wrapper">
+                <div class="controls-row">
+                    <button id="lockGroupSelectionBtn" class="btn">🔒 <span class="label">Lock Groups</span></button>
+                    <button class="btn">🗑️ <span class="label">Clear</span></button>
+                    <button id="historyLogBtn" class="btn">📜 <span class="label">History</span></button>
+
+                    <span id="roundCounter">Round: 1</span>
+
+                    <button id="prevTurnBtn" class="btn">⬅ <span class="label">Prev Turn</span></button>
+                    <div id="currentTurnDisplay">🟢 Current Turn: <strong>None</strong></div>
+                    <button id="nextTurnBtn" class="btn">➡ <span class="label">Next Turn</span></button>
+
+                    <!-- NEW: See Dead toggle -->
+                    <label class="btn" style="display:inline-flex; align-items:center; gap:.4rem;">
+                        <input type="checkbox" id="toggleSeeDead" />
+                        <span class="label">☠️ See Dead</span>
+                    </label>
+
+                    <!-- Save/Load/Export/Dashboards -->
+                    <button id="saveEncounterBtn" class="btn">💾 <span class="label">Save</span></button>
+                    <button id="loadEncounterBtn" class="btn">📂 <span class="label">Load</span></button>
+                    <button id="exportInitBtn" class="btn">🧾 <span class="label">Copy</span></button>
+                    <button id="seeDashboardsBtn" class="btn">📋 <span class="label">Dashboards</span></button>
+                </div>
+
+                <div id="bulkActionsBar" class="bulk-actions-bar">
+                    <span id="selectionCounter">0 selected</span>
+                    <div class="bulk-actions-actions">
+                        <button id="bulkDamageHealBtn">Damage / Heal</button>
+                        <button id="bulkDeleteBtn">Delete Selected</button>
+                        <button id="bulkGroupBtn">Move to Group</button>
+                    </div>
+                </div>
+                
+                <!-- Hint shown after pressing “Move to Group” -->
+                <div id="choose-group-hint" class="hint-banner hidden">
+                    👉 Please choose a group (click a group row) to move the selected combatants.
+                </div>
+
+                <!-- Mini confirm bar (appears after clicking a group row) -->
+                <div id="confirm-move-mini" class="confirm-mini hidden">
+                    <span id="confirm-mini-text">Move 0 selected to “Group”?</span>
+                    <div class="confirm-mini-actions">
+                        <button id="confirm-mini-yes" class="btn">Move</button>
+                        <button id="confirm-mini-no"  class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+
+                <div class="table-scroll-container">
+                    <div id="tracker-table" class="tracker-table">
+                        <div class="tracker-table-header">
+                            <div class="cell select-cell"><input type="checkbox" id="selectAllCheckbox" title="Select All"></div>
+                            <div class="cell image-cell">[img]</div>
+                            <div class="cell init-cell">
+                                [init]
+                                <button id="sort-init-asc" aria-label="Sort init ascending">▲</button>
+                                <button id="sort-init-desc" aria-label="Sort init descending">▼</button>
+                            </div>
+                            <div class="cell name-cell">[name]</div>
+                            <div class="cell ac-cell">[ac]</div>
+                            <div class="cell hp-cell">[hp/max]</div>
+                            <div class="cell temp-hp-cell">[tempHp]</div>
+                            <div class="cell status-cell">[status tags]</div>
+                            <div class="cell role-cell">[role]</div>
+                            <div class="cell actions-cell">[buttons/actions]</div>
+                            <div class="cell dashboard-link-cell">[dashboard link]</div>
+                        </div>
+                        <div id="combatant-list-body"></div>
+                    </div>
+                </div>
+            </main>
+        </section>
+    </div>
+
+    <!-- History Log Panel -->
+    <section id="trackerContainer" class="tracker-log-panel"> 
+        <div id="historyLogContent" class="log-content"></div> 
+    </section>
+
+    <!-- Modal for Linking a Dashboard -->
+    <div id="link-dashboard-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+             <!-- Link Dashboard content here -->
+        </div>
+    </div>
+
+    <div id="move-to-group-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>Move to Group</h3>
+            <div class="form-group">
+                <label for="group-select">Select a group to move combatant(s) to:</label>
+                <select id="group-select"></select>
+            </div>
+            <div class="modal-actions">
+                <button id="cancel-move-btn" class="btn">Cancel</button>
+                <button id="confirm-move-btn" class="btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- in encounter.html, near the end of body -->
+    <div id="drag-shield" aria-hidden="true"></div>
+
+</body>
+</html>
