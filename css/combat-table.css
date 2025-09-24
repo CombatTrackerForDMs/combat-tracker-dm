@@ -189,7 +189,7 @@
 /* Current turn highlight: an outline that works on ANY row */
 #tracker-table .tracker-table-row.current-turn {
   position: relative;
-  outline: 3px solid #4CAF50; /* A slightly thicker, more visible outline */
+  outline: 3px solid rgb(81, 255, 0); /* A slightly thicker, more visible outline */
   outline-offset: -2px;
   z-index: 2; /* Ensure the outline is on top */
 }
