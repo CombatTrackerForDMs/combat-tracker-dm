@@ -435,3 +435,60 @@
 .slots-inline .slot-pip{ width:14px; height:14px; border-radius:50%; box-sizing:border-box; border:2px solid currentColor; opacity:.35; }
 .slots-inline .slot-pip.available{ background: currentColor; opacity:1; }
 .slots-inline .slot-pip.spent{ background: transparent; }
+
+
+
+
+
+
+
+
+
+
+
+
+/* ==== Player row “minimal columns” mode ================================== */
+/* ==== Player row “minimal columns” mode ================================== */
+/* Only for combatant rows whose role is 'pc' (class added by renderer) */
+/* ==== Player row “minimal columns” mode ================================== */
+#combatant-list-body > .tracker-table-row.pc-row .ac-cell,
+#combatant-list-body > .tracker-table-row.pc-row .hp-cell,
+#combatant-list-body > .tracker-table-row.pc-row .temp-hp-cell,
+#combatant-list-body > .tracker-table-row.pc-row .status-cell,
+#combatant-list-body > .tracker-table-row.pc-row .role-cell {
+  background: inherit !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: transparent !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  pointer-events: none;
+}
+
+#combatant-list-body > .tracker-table-row.pc-row .status-cell *:not(.cond-list),
+#combatant-list-body > .tracker-table-row.pc-row .status-cell .cond-list,
+#combatant-list-body > .tracker-table-row.pc-row .ac-cell *,
+#combatant-list-body > .tracker-table-row.pc-row .hp-cell *,
+#combatant-list-body > .tracker-table-row.pc-row .temp-hp-cell *,
+#combatant-list-body > .tracker-table-row.pc-row .role-cell * {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Allowed columns (incl. Dashboard link) stay normal */
+#combatant-list-body > .tracker-table-row.pc-row .select-cell,
+#combatant-list-body > .tracker-table-row.pc-row .image-cell,
+#combatant-list-body > .tracker-table-row.pc-row .init-cell,
+#combatant-list-body > .tracker-table-row.pc-row .name-cell,
+#combatant-list-body > .tracker-table-row.pc-row .actions-cell,
+#combatant-list-body > .tracker-table-row.pc-row .dashboard-link-cell {
+  visibility: visible !important;
+  color: inherit !important;
+  pointer-events: auto !important;
+  background: initial !important;
+  border: initial !important;
+  box-shadow: initial !important;
+  padding: initial !important;
+  border-radius: initial !important;
+}

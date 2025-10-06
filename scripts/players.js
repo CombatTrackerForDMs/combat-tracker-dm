@@ -1,6 +1,18 @@
 // scripts/players.js
+// scripts/players.js
 (() => {
-  const LS_KEY = 'dnd_players_v1';
+  // Use the same key the editor uses:
+  const LS_KEY = 'players_v1';   // was 'dnd_players_v1'
+
+  // Optional: migrate from old key if it exists
+  try {
+    const OLD_KEY = 'dnd_players_v1';
+    const old = localStorage.getItem(OLD_KEY);
+    const cur = localStorage.getItem(LS_KEY);
+    if (old && !cur) localStorage.setItem(LS_KEY, old);
+  } catch {}
+
+  // ...rest of file unchanged...
 
   const uid = () => `${Date.now()}-${Math.floor(Math.random()*1e6)}`;
 
@@ -56,14 +68,20 @@
   // Add a PC as a combatant by spawning a default then patching it
   function addCombatantFromPlayer(pc) {
     if (!window.CombatState || !window.CombatAPI) return;
+
     const beforeIds = new Set(
       window.CombatAPI.getAllCombatants()
         .filter(x => x.type === 'combatant')
         .map(x => x.id)
     );
+
     window.CombatState.addCombatant(); // creates a default combatant
+
     const after = window.CombatAPI.getAllCombatants();
-    const fresh = [...after].reverse().find(x => x.type === 'combatant' && !beforeIds.has(x.id));
+    // FIX: use a copy and reverse to find the newest combatant
+    const fresh = after.slice().reverse().find(
+      x => x.type === 'combatant' && !beforeIds.has(x.id)
+    );
     if (!fresh) return;
 
     window.CombatState.updateCombatant(fresh.id, {
@@ -71,9 +89,10 @@
       ac: pc.ac,
       role: 'pc',
       imageUrl: pc.imageUrl || '',
-      // you can preset an init if you store one on the PC later
+      // (optional) preset init later if you store it on PCs
     });
   }
+
 
   // Mounts a compact "PC quick add" control into .button-group (encounter.html header)
   function mountPCQuickAdd() {

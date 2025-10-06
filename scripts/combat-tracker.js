@@ -1078,7 +1078,6 @@
     // Combatant row
     const paintCombatant = (c, inGroup = false, scheme = null) => {
       const hpNum = Number(c.hp) || 0;
-
       if (!showDead && hpNum <= 0) return;
 
       const isSelected = selectedCombatantIds.has(c.id);
@@ -1088,9 +1087,38 @@
       row.className = `tracker-table-row ${inGroup ? 'in-group' : ''} ${isSelected ? 'selected' : ''} ${isCurrent ? 'current-turn' : ''}`;
       row.dataset.id = c.id;
       row.dataset.type = 'combatant';
+
+      // tag PCs for styling and logic
+      const isPC = String(c.role || '').toLowerCase() === 'pc';
+      row.classList.toggle('pc-row', isPC);
+
       if (inGroup && scheme) { row.style.backgroundColor = scheme.member; row.style.color = scheme.text; }
 
+      // prebuild pieces
       const { html: hpIconHtml } = hpStateAsset(Number(c.hp), Number(c.maxHp));
+
+      // 🔻 Only fill AC/HP/Temp/Status/Role/Dashboard when NOT a PC
+      const acHTML = isPC ? '' : `
+        <span class="ac-shield">🛡️</span>
+        <span class="editable-int" data-type="combatant" data-id="${c.id}" data-field="ac">${c.ac}</span>`;
+
+      const hpHTML = isPC ? '' : `
+        ${hpIconHtml}
+        <span class="editable-int" data-type="combatant" data-id="${c.id}" data-field="hp">${c.hp}</span>
+        <span> / </span>
+        <span class="editable-int" data-type="combatant" data-id="${c.id}" data-field="maxHp">${c.maxHp}</span>`;
+
+      const tempHTML = isPC ? '' : `
+        <span class="temp-icon">✨</span>
+        <span class="editable-int" data-type="combatant" data-id="${c.id}" data-field="tempHp">${c.tempHp || 0}</span>`;
+
+      const statusHTML = isPC ? '' : `
+        ${condChipsHTML(c)}
+        <button class="btn btn-add-status" data-id="${c.id}">+ Add</button>`;
+
+      const roleHTML = isPC ? '' : (c.role?.toUpperCase?.() || '');
+
+      const dashboardHTML = isPC ? '' : `<button title="Toggle Dashboard">📄</button>`;
 
       row.innerHTML = `
         <div class="cell select-cell">
@@ -1105,44 +1133,25 @@
         <div class="cell name-cell">
           <span class="editable-text" data-type="combatant" data-id="${c.id}" data-field="name">${c.name}</span>
         </div>
-        <div class="cell ac-cell">
-          <span class="ac-shield">🛡️</span>
-          <span class="editable-int" data-type="combatant" data-id="${c.id}" data-field="ac">${c.ac}</span>
-        </div>
-        <div class="cell hp-cell" data-id="${c.id}">
-          ${hpIconHtml}
-          <span class="editable-int" data-type="combatant" data-id="${c.id}" data-field="hp">${c.hp}</span>
-          <span> / </span>
-          <span class="editable-int" data-type="combatant" data-id="${c.id}" data-field="maxHp">${c.maxHp}</span>
-        </div>
-        <div class="cell temp-hp-cell">
-          <span class="temp-icon">✨</span>
-          <span class="editable-int" data-type="combatant" data-id="${c.id}" data-field="tempHp">${c.tempHp || 0}</span>
-        </div>
-        <div class="cell status-cell">
-          ${condChipsHTML(c)}
-          <button class="btn btn-add-status" data-id="${c.id}">+ Add</button>
-        </div>
-        <div class="cell role-cell">${c.role?.toUpperCase?.() || ''}</div>
+        <div class="cell ac-cell">${acHTML}</div>
+        <div class="cell hp-cell" data-id="${c.id}">${hpHTML}</div>
+        <div class="cell temp-hp-cell">${tempHTML}</div>
+        <div class="cell status-cell">${statusHTML}</div>
+        <div class="cell role-cell">${roleHTML}</div>
         <div class="cell actions-cell">
           <div class="btn-group">
             <button class="btn btn-slots-inline" data-id="${c.id}" title="Spell slots">
               ${c.spellSlots ? '🪄 Slots' : '🪄 Make Caster'}
             </button>
-            ${
-              hpNum <= 0
-                ? `<button class="btn btn-rejoin" data-id="${c.id}" title="Bring back into initiative">☠️↩</button>`
-                : ''
-            }
+            ${hpNum <= 0 ? `<button class="btn btn-rejoin" data-id="${c.id}" title="Bring back into initiative">☠️↩</button>` : ''}
             <button class="row-del" data-type="combatant" data-id="${c.id}" title="Delete combatant">🗑️</button>
           </div>
         </div>
-        <div class="cell dashboard-link-cell"><button title="Toggle Dashboard">📄</button></div>
+        <div class="cell dashboard-link-cell">${dashboardHTML}</div>
       `;
 
       combatantListBody.appendChild(row);
 
-      // inline spell slots panel
       if (c._slotsOpen) {
         window.SpellUI?.ensureSpellData(c);
         const wrap = document.createElement('div');
@@ -1153,6 +1162,7 @@
         combatantListBody.appendChild(wrap);
       }
     };
+
 
     // Paint everything
     combatants.forEach(item => {
